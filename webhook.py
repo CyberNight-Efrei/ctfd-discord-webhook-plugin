@@ -16,6 +16,14 @@ ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
 sanreg = re.compile(r'(~|!|@|#|\$|%|\^|&|\*|\(|\)|\_|\+|\`|-|=|\[|\]|;|\'|,|\.|\/|\{|\}|\||:|"|<|>|\?)')
 sanitize = lambda m: sanreg.sub(r'\1',m)
 
+colors = {
+	"intro": "a3a3a3",
+	"easy": "30bd30",
+	"medium": "dd7a16",
+	"hard": "9a0f0f",
+	"nightmare": "3d00a5"
+}
+
 def load(app):
     config(app)
     TEAMS_MODE = ctfd_config.is_teams_mode()
@@ -52,6 +60,7 @@ def load(app):
 
                     user = get_current_user()
                     team = get_current_team()
+                    color = colors.get(challenge.tags[0].value.lower(), None) if challenge.tags else None
 
                     format_args = {
                         "team": sanitize("" if team is None else team.name),
@@ -63,7 +72,8 @@ def load(app):
                         "value": challenge.value,
                         "solves": num_solves,
                         "fsolves": ordinal(num_solves),
-                        "category": sanitize(challenge.category)
+                        "category": sanitize(challenge.category),
+			"tag": sanitize(challenge.tags[0].value) if challenge.tags else None
                     }
 
                     # Add first blood support with a second message
@@ -72,7 +82,7 @@ def load(app):
                         message = eval("f'{}'".format(app.config['DISCORD_WEBHOOK_MESSAGE'].replace("'", '"')))
                     else:
                         message = app.config['DISCORD_WEBHOOK_MESSAGE'].format(**format_args)
-                    embed = DiscordEmbed(description=message)
+                    embed = DiscordEmbed(description=message, color=color)
                     webhook.add_embed(embed)
                     webhook.execute()
             return result
