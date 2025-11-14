@@ -99,7 +99,7 @@ def load(app):
                 return f(*args, **kwargs)
 
             # Check if feature is disabled
-            if not app.config['DISCORD_WEBHOOK_CHALL']:
+            if not app.config['DISCORD_WEBHOOK_CHALL'] or app.config['DISCORD_WEBHOOK_CHALL'].lower() == 'false':
                 return f(*args, **kwargs)
 
             # Check if challenge was visible beforehand (check if published/updated)
